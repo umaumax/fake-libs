@@ -8,6 +8,7 @@ DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES=$LIBFAKE_HOSTS FAKE_HOSTS_FILE
 ```
 
 ### linux
+linuxでは`gethostname2`が呼ばれない...
 ```
 LIBFAKE_HOSTS=~/local/lib/libfake_hosts.so
 LD_PRELOAD=$LIBFAKE_HOSTS FAKE_HOSTS_FILEPATH=./.hosts ping www.google.com
