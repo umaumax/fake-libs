@@ -64,17 +64,6 @@ std::string conv_resolve_host(std::string pathname) {
 }
 
 extern "C" {
-int inet_aton(const char *cp, struct in_addr *inp) {
-  using libc_inet_aton_pointer_type                 = decltype(&inet_aton);
-  static libc_inet_aton_pointer_type libc_inet_aton = nullptr;
-  if (libc_inet_aton == nullptr) {
-    libc_inet_aton = (libc_inet_aton_pointer_type)dlsym(RTLD_NEXT, "inet_aton");
-    assert(libc_inet_aton && "failed dlsym inet_aton");
-  }
-
-  return libc_inet_aton(conv_resolve_host(std::string(cp)).c_str(), inp);
-}
-
 struct hostent *gethostbyname2(const char *name, int af) {
   using libc_gethostbyname2_pointer_type                      = decltype(&gethostbyname2);
   static libc_gethostbyname2_pointer_type libc_gethostbyname2 = nullptr;
