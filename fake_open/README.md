@@ -15,4 +15,6 @@ LD_PRELOAD=$LIBFAKE_OPEN FAKE_OPENRC_FILEPATH=./.openrc head /dev/random | LC_CT
 
 ## FYI
 * `create`には対応していない
+* `less`はsystem callの`open`を利用している
 * `/etc/hosts`はsystem callを利用しているので置換はできない
+* macの場合には`dlsym`内でopen系(not system call)を利用するため，分岐処理あり
