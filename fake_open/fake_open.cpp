@@ -28,15 +28,19 @@ void parse_openrc(std::function<bool(std::string, std::string)> lambda) {
   // 2. ./.openrc
   openrc_filepathes.emplace_back("./.openrc");
   // 3. ~/.openrc
-  {
-    struct passwd *pw   = getpwuid(getuid());
-    const char *homedir = pw->pw_dir;
-    openrc_filepathes.emplace_back(std::string(homedir) + "/.openrc");
-  }
+  //   {
+  //     struct passwd *pw   = getpwuid(getuid());
+  //     const char *homedir = pw->pw_dir;
+  //     openrc_filepathes.emplace_back(std::string(homedir) + "/.openrc");
+  //   }
 
   for (auto &&openrc_filepath : openrc_filepathes) {
     std::string line;
+#ifdef __APPLE__
     std::ifstream ifs(":" + openrc_filepath);
+#else
+    std::ifstream ifs(openrc_filepath);
+#endif
     if (ifs.is_open()) {
       while (std::getline(ifs, line)) {
         std::stringstream ss(line);
@@ -55,6 +59,24 @@ void parse_openrc(std::function<bool(std::string, std::string)> lambda) {
     }
   }
 }
+std::string conv_open_filepath(std::string pathname) {
+  std::string new_pathname_str(pathname);
+  std::string prefix = ":";
+  // NOTE: to prevent infinite loop
+  if (new_pathname_str.size() >= prefix.size() && std::equal(std::begin(prefix), std::end(prefix), std::begin(new_pathname_str))) {
+    // NOTE: called by inside of my fopen with prefix
+    new_pathname_str.erase(0, prefix.length());
+  } else {
+    parse_openrc([&](std::string from_name, std::string to_name) {
+      if (pathname == from_name) {
+        new_pathname_str = to_name;
+        return true;
+      }
+      return false;
+    });
+  }
+  return new_pathname_str;
+}
 
 extern "C" {
 FILE *fopen(const char *path, const char *mode) {
@@ -64,23 +86,7 @@ FILE *fopen(const char *path, const char *mode) {
     libc_fopen = (libc_fopen_pointer_type)dlsym(RTLD_NEXT, "fopen");
     assert(libc_fopen && "failed dlsym fopen");
   }
-
-  std::string new_pathname_str(path);
-  std::string prefix = ":";
-  // NOTE: to prevent infinite loop
-  if (new_pathname_str.size() >= prefix.size() && std::equal(std::begin(prefix), std::end(prefix), std::begin(new_pathname_str))) {
-    // NOTE: called by inside of my fopen with prefix
-    new_pathname_str.erase(0, prefix.length());
-  } else {
-    parse_openrc([&](std::string from_name, std::string to_name) {
-      if (std::string(path) == from_name) {
-        new_pathname_str = to_name;
-        return true;
-      }
-      return false;
-    });
-  }
-  return libc_fopen(new_pathname_str.c_str(), mode);
+  return libc_fopen(conv_open_filepath(std::string(path)).c_str(), mode);
 }
 
 int open(const char *pathname, int flags, ...) {
@@ -90,22 +96,22 @@ int open(const char *pathname, int flags, ...) {
     libc_open = (libc_open_pointer_type)dlsym(RTLD_NEXT, "open");
     assert(libc_open && "failed dlsym open");
   }
+  // TODO: impl args of ...
+  return libc_open(conv_open_filepath(std::string(pathname)).c_str(), flags);
+}
 
-  std::string new_pathname_str(pathname);
-  std::string prefix = ":";
-  // NOTE: to prevent infinite loop
-  if (new_pathname_str.size() >= prefix.size() && std::equal(std::begin(prefix), std::end(prefix), std::begin(new_pathname_str))) {
-    // NOTE: called by inside of my open with prefix
-    new_pathname_str.erase(0, prefix.length());
-  } else {
-    parse_openrc([&](std::string from_name, std::string to_name) {
-      if (std::string(pathname) == from_name) {
-        new_pathname_str = to_name;
-        return true;
-      }
-      return false;
-    });
+// The open64() function is a part of the large file extensions, and is equivalent to calling open() with the O_LARGEFILE flag.
+// But,
+// ['O\_LARGEFILE' error on compilation \(OSX\) · Issue \#139 · sahib/rmlint]( https://github.com/sahib/rmlint/issues/139 )
+// int open64(const char *pathname, int flags, ...) { return open(pathname, flags); }
+int open64(const char *pathname, int flags, ...) {
+  using libc_open64_pointer_type              = decltype(&open64);
+  static libc_open64_pointer_type libc_open64 = nullptr;
+  if (libc_open64 == nullptr) {
+    libc_open64 = (libc_open64_pointer_type)dlsym(RTLD_NEXT, "open64");
+    assert(libc_open64 && "failed dlsym open64");
   }
-  return libc_open(new_pathname_str.c_str(), flags);
+  // TODO: impl args of ...
+  return libc_open64(conv_open_filepath(std::string(pathname)).c_str(), flags);
 }
 }
