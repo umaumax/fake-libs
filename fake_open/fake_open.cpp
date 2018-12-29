@@ -92,13 +92,20 @@ int open(const char *pathname, int flags, ...) {
   }
 
   std::string new_pathname_str(pathname);
-  parse_openrc([&](std::string from_name, std::string to_name) {
-    if (std::string(pathname) == from_name) {
-      new_pathname_str = to_name;
-      return true;
-    }
-    return false;
-  });
+  std::string prefix = ":";
+  // NOTE: to prevent infinite loop
+  if (new_pathname_str.size() >= prefix.size() && std::equal(std::begin(prefix), std::end(prefix), std::begin(new_pathname_str))) {
+    // NOTE: called by inside of my open with prefix
+    new_pathname_str.erase(0, prefix.length());
+  } else {
+    parse_openrc([&](std::string from_name, std::string to_name) {
+      if (std::string(pathname) == from_name) {
+        new_pathname_str = to_name;
+        return true;
+      }
+      return false;
+    });
+  }
   return libc_open(new_pathname_str.c_str(), flags);
 }
 }
