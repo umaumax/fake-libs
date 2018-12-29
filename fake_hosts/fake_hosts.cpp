@@ -2,6 +2,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
