@@ -2,8 +2,9 @@
 
 ## how to build
 ```
+mkdir -p ~/local/
 mkdir -p build && cd build
-cmake .. CMAKE_INSTALL_PREFIX=~/local
+cmake .. -DCMAKE_INSTALL_PREFIX=~/local/
 make install
 ```
 

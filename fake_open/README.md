@@ -9,7 +9,7 @@ DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES=$LIBFAKE_OPEN FAKE_OPENRC_FILE
 
 ### linux
 ```
-LIBFAKE_OPEN=~/local/lib/libfake_open.dylib
+LIBFAKE_OPEN=~/local/lib/libfake_open.so
 LD_PRELOAD=$LIBFAKE_OPEN FAKE_OPENRC_FILEPATH=./.openrc head /dev/random | LC_CTYPE=C tr -dc 0-9 | head -c 13 ; echo ''
 ```
 

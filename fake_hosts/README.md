@@ -9,7 +9,7 @@ DYLD_FORCE_FLAT_NAMESPACE=1 DYLD_INSERT_LIBRARIES=$LIBFAKE_HOSTS FAKE_HOSTS_FILE
 
 ### linux
 ```
-LIBFAKE_HOSTS=~/local/lib/libfake_hosts.dylib
+LIBFAKE_HOSTS=~/local/lib/libfake_hosts.so
 LD_PRELOAD=$LIBFAKE_HOSTS FAKE_HOSTS_FILEPATH=./.hosts ping www.google.com
 ```
 
