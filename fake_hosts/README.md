@@ -44,9 +44,9 @@ $ hardening-check /usr/bin/curl
  Immediate binding: yes
 ```
 
-`wget` is alos `PIE`
+`wget` is also `PIE`
 
-* PIE binaryの場合は`ltrace`が無効化されるが，`nm -D`で`U`のシンボルの置換は可能
+* PIE binaryの場合は`ltrace`が無効化されるが，`nm -D`で表示される`U`のシンボルの置換は可能
 
 ----
 
