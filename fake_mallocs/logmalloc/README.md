@@ -6,8 +6,9 @@ only output log
 * `free`
 * no `calloc` ...
 
-Ubuntu: OK
-Mac: NG
+* Ubuntu: OK
+* Yocoto: OK
+* Mac: NG
 
 ## how to build
 ```
