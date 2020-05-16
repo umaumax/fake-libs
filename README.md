@@ -12,3 +12,4 @@ make install
 
 ## FYI
 * `RTLD_NEXT` is GNU extension
+* [gaul/awesome\-ld\-preload: List of resources related to LD\_PRELOAD, a mechanism for changing application behavior at run\-time]( https://github.com/gaul/awesome-ld-preload )
