@@ -1,11 +1,11 @@
 cxx = g++
 
 rule app
-    command = $cxx -O2 -std=c++11 -g -ldl $in -o $out
+    command = $cxx -O2 -std=c++11 -g $in -o $out -ldl
     description = building app $out
 
 rule shared_lib
-    command = $cxx -std=c++11 -fPIC -shared -g -ldl $in -o $out
+    command = $cxx -std=c++11 -fPIC -shared -g $in -o $out -ldl
     description = building shared lib. $out
 
 build always: phony
